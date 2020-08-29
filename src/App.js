@@ -1,14 +1,21 @@
 import React, {useState} from 'react';
-import Table from 'react-bootstrap/Table';
 import axios from 'axios';
 import './App.css';
 
 function App() {
+  const [cityCovid, setCityCovid] = useState({city:''});
+  const [dateCovid, setDateCovid] = useState({date:''});
+
   const [covidCases, setCovidCases] = useState([]);
 
   const getCovidCases = () => {
     axios
-    .get(`https://www.datos.gov.co/resource/gt2j-8ykr.json?ciudad_de_ubicaci_n=Marinilla&fecha_diagnostico=2020-08-06T00:00:00.000`)
+    .get('https://www.datos.gov.co/resource/gt2j-8ykr.json?departamento=Antioquia', {
+      params: {
+        city: cityCovid.onCity,
+        ...(dateCovid.onDate ? { date: dateCovid.onDate }: {} ) 
+      },
+    })
     .then(res => {
         setCovidCases (res.data);
       });
@@ -18,45 +25,40 @@ function App() {
        <div className="App">
          <div>
          <label >City </label>
-         <input 
-           type = "text" 
+         <input
+          onChange={e => setCityCovid ({onCity: e.target.value}) }
+          type = "text" 
+          name = "city"
+          value={cityCovid.onCity} 
            />
          </div>
          
          <div>
          <label >Date </label>
-         <input 
-           type = "date" 
+         <input
+         onChange={e => setDateCovid ({onDate: e.target.value}) }
+         type = "date" 
+         name = "date"
+         value={dateCovid.onDate} 
            />
          </div>
          <button 
          onClick = {getCovidCases}>Search</button>
           <br />
           <ul className = "tablaCasos">
-          <table class="table">
-           <thead>
-             <tr>
-              <th scope="col">Edad</th>
-              <th scope="col">Sexo</th>
-              <th scope="col">Tipo</th>
-              <th scope="col">Estado</th>
-             </tr>
-           </thead>
-          </table>
             {covidCases.map((covidCase)=> {
               return (
-                <li>
-                  <table class="table">
-                  <tbody>
+               
+                 <table class="table">
+                 <tbody>
                    <tr>
-                    <th scope="row"> {covidCase.edad}</th>
-                    <td>{covidCase.sexo}</td>
-                    <td>{covidCase.tipo}</td>
-                    <td>{covidCase.estado}</td>
-                  </tr>
-                </tbody>
-                 </table>
-                </li>
+                    <th scope="row">{covidCase.edad}</th>
+                     <td>{covidCase.sexo}</td>
+                     <td>{covidCase.tipo}</td>
+                     <td>{covidCase.estado}</td>
+                   </tr>
+                 </tbody>
+               </table>
               );
             })}
           </ul>
