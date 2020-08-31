@@ -3,69 +3,77 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  const [cityCovid, setCityCovid] = useState({city:''});
-  const [dateCovid, setDateCovid] = useState({date:''});
+  const [city, setCity] = useState('');
+  const [date, setDate] = useState('');
 
   const [covidCases, setCovidCases] = useState([]);
 
   const getCovidCases = () => {
     axios
-    .get('https://www.datos.gov.co/resource/gt2j-8ykr.json?departamento=Antioquia', {
-      params: {
-        city: cityCovid.onCity,
-        ...(dateCovid.onDate ? { date: dateCovid.onDate }: {} ) 
-      },
-    })
+    .get(`https://www.datos.gov.co/resource/gt2j-8ykr.json?ciudad_de_ubicaci_n=${city}&fecha_diagnostico=${date}T00:00:00.000`)
     .then(res => {
         setCovidCases (res.data);
       });
     };
  
      return (
+       
        <div className="App">
+         <h3>INFORMACIÓN SOBRE CASOS DE COVID-19 </h3>
+         <h4>EN LOS MUNICIPIOS DE ANTIOQUIA</h4>
+         <p>Ingrese los siguientes datos para obtener información de el municipio y la fecha de su interés. </p>
          <div>
-         <label >City </label>
+         <label >Municipio</label>
          <input
-          onChange={e => setCityCovid ({onCity: e.target.value}) }
+         className="inputCovid"
+          onChange={e => setCity (e.target.value) }
           type = "text" 
           name = "city"
-          value={cityCovid.onCity} 
+          value={city} 
            />
          </div>
          
          <div>
-         <label >Date </label>
+         <label >Fecha </label>
          <input
-         onChange={e => setDateCovid ({onDate: e.target.value}) }
+         className="inputCovid"
+         onChange={e => setDate (e.target.value) }
          type = "date" 
          name = "date"
-         value={dateCovid.onDate} 
+         value={date} 
            />
          </div>
          <button 
-         onClick = {getCovidCases}>Search</button>
+         className="buttonCovid"
+         onClick = {getCovidCases}>Buscar</button>
           <br />
-          <ul className = "tablaCasos">
+          {covidCases.length > 0 && (
+            <table class="table">
+            <thead>
+             <tr>
+              <th scope="col">Edad</th>
+              <th scope="col">Sexo</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Estado</th>
+             </tr>
+            </thead>
+            <tbody>
             {covidCases.map((covidCase)=> {
               return (
-               
-                 <table class="table">
-                 <tbody>
-                   <tr>
-                    <th scope="row">{covidCase.edad}</th>
-                     <td>{covidCase.sexo}</td>
-                     <td>{covidCase.tipo}</td>
-                     <td>{covidCase.estado}</td>
-                   </tr>
-                 </tbody>
-               </table>
-              );
+             <tr>
+              <th scope="row">{covidCase.edad}</th>
+              <td>{covidCase.sexo}</td>
+              <td>{covidCase.tipo}</td>
+              <td>{covidCase.estado}</td>
+             </tr>
+             );
             })}
-          </ul>
-       </div>
-   );
- }
- 
+            </tbody>
+          </table>
+          )}
+          
+        </div>
+        )}
+  
  
  export default App;
- 
